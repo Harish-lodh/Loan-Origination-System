@@ -4,8 +4,12 @@ import Dashboard from "../pages/Dashboard";
 import LeadForm from "../pages/CreateLeads";
 import Applications from "../pages/Applications";
 import Layout from "../layout/Layout";
-import ProtectedRoute from "../utils/ProtectedRoute";
+// import ProtectedRoute from "../utils/ProtectedRoute";
+import Lap from "../pages/Products/Lap";
+import Educationloan from "../pages/Products/Educationloan";
 import LeadTable from "../pages/Leads";
+import ContactTable from "../pages/Contacts/contacts";
+import Supplychain from "../pages/Products/Supplychain";
 
 const AppRoutes = () => {
     return (
@@ -26,6 +30,14 @@ const AppRoutes = () => {
                 <Route path="leads/users" element={<LeadTable />} />
                 <Route path="leads/create" element={<LeadForm />} />
                 <Route path="applications" element={<Applications />} />
+                <Route path="/contacts" element={<ContactTable/>}/>
+
+                <Route path="Product">
+                    <Route path="lap" element={<Lap/>}/>
+                    <Route path="supply-chain" element={<Supplychain/>}/>
+                    <Route path="education-loan" element={<Educationloan/>}/>
+                    <Route/>
+                </Route>
             </Route>
         </Routes>
     );
