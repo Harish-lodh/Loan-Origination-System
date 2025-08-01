@@ -20,7 +20,7 @@ const AppRoutes = () => {
                 }
             >
                 <Route index element={<Dashboard />} />
-                <Route path="leads" element={<LeadTable />} />
+                <Route path="leads/users" element={<LeadTable />} />
                 <Route path="leads/create" element={<LeadForm />} />
                 <Route path="applications" element={<Applications />} />
             </Route>

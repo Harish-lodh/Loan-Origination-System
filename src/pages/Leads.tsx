@@ -29,11 +29,11 @@ function createData(
 }
 
 const rows: LeadData[] = [
-//   createData('Amit Sharma', 'TechNova Pvt Ltd', 'amit.sharma@technova.com', '9876543210', 'Website', 'Ravi Mehra'),
-//   createData('Pooja Patel', 'HealthCorp', 'pooja.patel@healthcorp.com', '9123456789', 'Referral', 'Meena Joshi'),
-//   createData('Rahul Verma', 'EduTrack', 'rahul.verma@edutrack.in', '9988776655', 'LinkedIn', 'Ayesha Khan'),
-//   createData('Sneha Iyer', 'BuildSmart', 'sneha.iyer@buildsmart.com', '9871234567', 'Facebook Ads', 'Suresh Rathi'),
-//   createData('Vikram Nair', 'FinMatrix', 'vikram.nair@finmatrix.com', '9112233445', 'Email Campaign', 'Tina Dsouza')
+  createData('Amit Sharma', 'TechNova Pvt Ltd', 'amit.sharma@technova.com', '9876543210', 'Website', 'Ravi Mehra'),
+  createData('Pooja Patel', 'HealthCorp', 'pooja.patel@healthcorp.com', '9123456789', 'Referral', 'Meena Joshi'),
+  createData('Rahul Verma', 'EduTrack', 'rahul.verma@edutrack.in', '9988776655', 'LinkedIn', 'Ayesha Khan'),
+  createData('Sneha Iyer', 'BuildSmart', 'sneha.iyer@buildsmart.com', '9871234567', 'Facebook Ads', 'Suresh Rathi'),
+  createData('Vikram Nair', 'FinMatrix', 'vikram.nair@finmatrix.com', '9112233445', 'Email Campaign', 'Tina Dsouza')
 ];
 
 export default function LeadTable() {
