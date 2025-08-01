@@ -1,5 +1,5 @@
+// src/routes/AppRoutes.tsx
 import { Routes, Route } from "react-router-dom";
-// import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import LeadForm from "../pages/CreateLeads";
 import Applications from "../pages/Applications";
@@ -8,6 +8,7 @@ import Layout from "../layout/Layout";
 import Lap from "../pages/Products/Lap";
 import Educationloan from "../pages/Products/Educationloan";
 import LeadTable from "../pages/Leads";
+import Kyc from '../pages/Kyc'
 import ContactTable from "../pages/Contacts/contacts";
 import Supplychain from "../pages/Products/Supplychain";
 
@@ -30,7 +31,7 @@ const AppRoutes = () => {
                 <Route path="leads/users" element={<LeadTable />} />
                 <Route path="leads/create" element={<LeadForm />} />
                 <Route path="applications" element={<Applications />} />
-                <Route path="/contacts" element={<ContactTable/>}/>
+                            <Route path="/contacts" element={<ContactTable/>}/>
 
                 <Route path="Product">
                     <Route path="lap" element={<Lap/>}/>

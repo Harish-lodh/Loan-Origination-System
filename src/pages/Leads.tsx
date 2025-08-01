@@ -40,7 +40,7 @@ export default function LeadTable() {
   const navigate = useNavigate();
 
   const handleCreate = () => {
-    navigate('create');
+    navigate('/leads/create');
   };
 
   return (
