@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "../pages/Login";
+// import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import LeadForm from "../pages/CreateLeads";
 import Applications from "../pages/Applications";
@@ -10,13 +10,16 @@ import LeadTable from "../pages/Leads";
 const AppRoutes = () => {
     return (
         <Routes>
-            <Route path="/login" element={<Login />} />
+            {/* <Route path="/login" element={<Login />} /> */}
             <Route
                 path="/"
+                // element={
+                //     <ProtectedRoute>
+                //         <Layout />
+                //     </ProtectedRoute>
+                // }
                 element={
-                    <ProtectedRoute>
-                        <Layout />
-                    </ProtectedRoute>
+                    <Layout/>
                 }
             >
                 <Route index element={<Dashboard />} />
