@@ -28,12 +28,12 @@ const Sidebar = () => {
 
   return (
     <div className="flex fixed w-full max-w-[20rem] flex-col rounded-xl bg-white p-4 text-gray-700 shadow-xl">
-      <div className="flex items-center gap-4 p-4 mb-2">
+      <div className="flex items-center gap-4 p-2 mb-4">
         <img src="/logo.png" alt="brand" className="w-8 h-8" />
-        <h5 className="text-xl font-semibold text-blue-gray-900">LOS</h5>
+        <h5 className="text-lg font-bold text-blue-gray-900">Loan Origination System</h5>
       </div>
 
-      <nav className="flex flex-col gap-1 text-base font-normal">
+      <nav className="flex flex-col text-base font-normal">
 
         {/* Dashboard Link */}
         <NavLink
@@ -49,7 +49,7 @@ const Sidebar = () => {
         </NavLink>
 
         {/* Leads Section */}
-        <div className="relative block w-full mt-4">
+        <div className="relative block w-full ">
           <div className="flex items-center justify-between w-full p-3 font-semibold text-gray-700">
             <div className="flex items-center gap-3">
               <WidgetsIcon />
@@ -63,7 +63,7 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center w-full p-3 pl-10 rounded-lg transition-all hover:bg-gray-200 ${
+                  `flex items-center w-full p-3 mb-1 pl-10 rounded-lg transition-all hover:bg-gray-200 ${
                     isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
                   }`
                 }

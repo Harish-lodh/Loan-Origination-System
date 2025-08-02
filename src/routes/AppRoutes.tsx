@@ -24,20 +24,21 @@ const AppRoutes = () => {
                 //     </ProtectedRoute>
                 // }
                 element={
-                    <Layout/>
+                    <Layout />
                 }
             >
                 <Route index element={<Dashboard />} />
                 <Route path="leads/users" element={<LeadTable />} />
                 <Route path="leads/create" element={<LeadForm />} />
+                <Route path="leads/kyc" element={<Kyc />} />
                 <Route path="applications" element={<Applications />} />
-                            <Route path="/contacts" element={<ContactTable/>}/>
+                <Route path="/contacts" element={<ContactTable />} />
 
                 <Route path="Product">
-                    <Route path="lap" element={<Lap/>}/>
-                    <Route path="supply-chain" element={<Supplychain/>}/>
-                    <Route path="education-loan" element={<Educationloan/>}/>
-                    <Route/>
+                    <Route path="lap" element={<Lap />} />
+                    <Route path="supply-chain" element={<Supplychain />} />
+                    <Route path="education-loan" element={<Educationloan />} />
+                    <Route />
                 </Route>
             </Route>
         </Routes>
