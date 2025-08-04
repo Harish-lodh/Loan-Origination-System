@@ -1,232 +1,153 @@
-import React, { useState } from 'react';
-import {
-  CheckCircleOutline,
-  HighlightOff,
-  Person,
-  CreditCard,
-  UploadFile,
-  VerifiedUser,
-  ErrorOutline
-} from '@mui/icons-material';
-import Select from 'react-select';
+import React, { useState } from "react";
+import { extractTextFromImage } from "../utils/OcrUtils"; // ✅ Your OCR logic here
+import { Box, TextField, Typography, Button, Grid, Paper } from "@mui/material";
 
 interface KycData {
-  image_selfie: string;
-  selfie_lat: string;
-  selfie_long_address: string;
-  selfie_timestamp: string;
-  pan_front: string;
-  pan_back: string;
-  pan_date_of_birth: string;
-  pan_gender: string;
-  pan_full_address: string;
-  pan_mobile_number: string;
-  pan_number: string;
-  pan_email: string;
-  pan_verification: string;
-  aadhaar_linked: string;
-  registered_name: string;
-  aadhaar_front: string;
-  aadhaar_back: string;
-  aadhaar_number: string;
-  aadhaar_status_code: string;
-  aadhaar_state: string;
-  aadhaar_age_band: string;
-  aadhaar_gender: string;
-  aadhaar_masked_mobile: string;
-  aadhaar_status_message: string;
-  aadhaar_verification: string;
+  selfie: File | null;
+  aadhaarFront: File | null;
+  panFront: File | null;
+  aadhaarNumber: string;
+  aadhaarName: string;
+  aadhaarGender: string;
+  aadhaarAddress: string;
+  panNumber: string;
+  panName: string;
+  panDob: string;
+  panGender: string;
 }
 
-const initialData: KycData = {
-  image_selfie: '/files/WhatsApp Image 2025-08-01 at 1.46.56 PM.jpeg',
-  selfie_lat: '15.860664',
-  selfie_long_address: '75.107419',
-  selfie_timestamp: '01-08-2025 13:47:45\nAsia/Kolkata',
-  pan_front: '/private/files/ಪಠ್ಯ app-2.pdf',
-  pan_back: '',
-  pan_date_of_birth: '12-07-1992',
-  pan_gender: 'MALE',
-  pan_full_address: 'hno 375, muchchandiyavar oni, manoli, belk',
-  pan_mobile_number: '88XXXXXX86',
-  pan_number: 'DTGPK0648E',
-  pan_email: 'ra********dv@gmail.com',
-  pan_verification: 'Done',
-  aadhaar_linked: 'Done',
-  registered_name: 'ARIF KALLOLI',
-  aadhaar_front: '/private/files/ಪಠ್ಯ app-3.pdf',
-  aadhaar_back: '/private/files/ಪಠ್ಯ app-4.pdf',
-  aadhaar_number: '568400680306',
-  aadhaar_status_code: 'NA',
-  aadhaar_state: 'KA',
-  aadhaar_age_band: 'NA',
-  aadhaar_gender: 'MALE',
-  aadhaar_masked_mobile: 'YES',
-  aadhaar_status_message: '',
-  aadhaar_verification: 'Done'
+const initialKycData: KycData = {
+  selfie: null,
+  aadhaarFront: null,
+  panFront: null,
+  aadhaarNumber: "",
+  aadhaarName: "",
+  aadhaarGender: "",
+  aadhaarAddress: "",
+  panNumber: "",
+  panName: "",
+  panDob: "",
+  panGender: "",
 };
 
-const Kyc: React.FC = () => {
-  const [kycData] = useState<KycData>(initialData);
-  const isAadhaarVerified = kycData.aadhaar_verification === 'Done';
-  const isPanVerified = kycData.pan_verification === 'Done';
+const KYCForm: React.FC = () => {
+  const [kycData, setKycData] = useState<KycData>(initialKycData);
+  const [loading, setLoading] = useState(false);
 
-  const renderTextField = (label: string, value: string) => (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold text-blue-700 mb-2">{label}</label>
-      <input
-        type="text"
-        value={value}
-        readOnly
-        className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none"
-      />
-    </div>
-  );
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: keyof KycData) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const renderFileField = (label: string, filePath: string) => (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold text-blue-700 mb-2">{label}</label>
-      <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <UploadFile className="text-gray-500" />
-          {filePath ? (
-            <a
-              href={filePath}
-              className="text-blue-600 hover:underline text-sm"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {filePath.split('/').pop()}
-            </a>
-          ) : (
-            <span className="text-gray-500 text-sm">No file attached</span>
-          )}
-        </div>
-        {filePath && (
-          <button className="px-3 py-1 text-xs border border-red-300 text-red-600 rounded hover:bg-red-50">
-            Clear
-          </button>
-        )}
-      </div>
-    </div>
-  );
+    setKycData((prev) => ({ ...prev, [field]: file }));
 
-  const VerificationHeader = ({ title, isVerified, icon: Icon }: { title: string; isVerified: boolean; icon: React.ElementType }) => (
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-2">
-        <Icon className="text-blue-600" />
-        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-      </div>
-      <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
-        isVerified ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
-      }`}>
-        {isVerified ? <CheckCircleOutline className="w-4 h-4" /> : <HighlightOff className="w-4 h-4" />}
-        {isVerified ? 'Successfully Verified' : 'Unable to Verify'}
-      </div>
-    </div>
-  );
+    if (field === "aadhaarFront" || field === "panFront") {
+      setLoading(true);
+      try {
+        const extractedData = await extractTextFromImage(file, field);
+        if (field === "aadhaarFront") {
+          setKycData((prev) => ({
+            ...prev,
+            aadhaarNumber: extractedData.number || prev.aadhaarNumber,
+            aadhaarName: extractedData.name || prev.aadhaarName,
+            aadhaarGender: extractedData.gender || prev.aadhaarGender,
+            aadhaarAddress: extractedData.address || prev.aadhaarAddress,
+          }));
+        } else if (field === "panFront") {
+          setKycData((prev) => ({
+            ...prev,
+            panNumber: extractedData.number || prev.panNumber,
+            panName: extractedData.name || prev.panName,
+            panDob: extractedData.dob || prev.panDob,
+            panGender: extractedData.gender || prev.panGender,
+          }));
+        }
+      } catch (err) {
+        console.error("OCR Failed", err);
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setKycData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = () => {
+    console.log("KYC Data Submitted", kycData);
+  };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">KYC Verification Dashboard</h1>
-          <p className="text-gray-600 text-lg">Customer Identity Verification Summary</p>
-        </div>
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: "auto", mt: 4 }}>
+      <Typography variant="h5" gutterBottom>
+        KYC Form
+      </Typography>
 
-        <div className="bg-white border border-gray-200 rounded-xl mb-6 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <Person className="text-blue-600" />
-              <h3 className="text-xl font-bold text-gray-800">Customer Information</h3>
-            </div>
-          </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {renderTextField('Registered Name', kycData.registered_name)}
-            {renderTextField('Mobile Number', kycData.pan_mobile_number)}
-            {renderTextField('Email Address', kycData.pan_email)}
-            {renderTextField('Full Address', kycData.pan_full_address)}
-          </div>
-        </div>
+      <Grid container spacing={2}>
+        {/* Upload Section */}
+        <Grid item xs={12} sm={6}>
+          <Typography variant="subtitle1">Upload Selfie</Typography>
+          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "selfie")} />
+        </Grid>
 
-        <div className="bg-white border border-gray-200 rounded-xl mb-6 overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <VerifiedUser className="text-purple-600" />
-              <h3 className="text-xl font-bold text-gray-800">Selfie Verification</h3>
-            </div>
-          </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {renderFileField('Selfie Image', kycData.image_selfie)}
-            {renderTextField('Capture Timestamp', kycData.selfie_timestamp)}
-            {renderTextField('Latitude', kycData.selfie_lat)}
-            {renderTextField('Longitude', kycData.selfie_long_address)}
-          </div>
-        </div>
+        <Grid item xs={12} sm={6}>
+          <Typography variant="subtitle1">Upload Aadhaar Front</Typography>
+          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "aadhaarFront")} />
+        </Grid>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className={`bg-white border-2 rounded-xl overflow-hidden ${isAadhaarVerified ? 'border-green-200' : 'border-red-200'}`}>
-            <div className={`${isAadhaarVerified ? 'bg-green-50' : 'bg-red-50'} px-6 py-4`}>
-              <VerificationHeader title="Aadhaar Verification" isVerified={isAadhaarVerified} icon={CreditCard} />
-            </div>
-            <div className="p-6">
-              {renderTextField('Aadhaar Number', kycData.aadhaar_number)}
-              {renderFileField('Aadhaar Front', kycData.aadhaar_front)}
-              {renderFileField('Aadhaar Back', kycData.aadhaar_back)}
-              {renderTextField('Gender', kycData.aadhaar_gender)}
-              {renderTextField('State', kycData.aadhaar_state)}
-              {renderTextField('Age Band', kycData.aadhaar_age_band || 'NA')}
-              {renderTextField('Masked Mobile', kycData.aadhaar_masked_mobile)}
-              {renderTextField('Status Code', kycData.aadhaar_status_code || 'NA')}
-              {renderTextField('Status Message', kycData.aadhaar_status_message || 'Verification Completed')}
-              {renderTextField('Linked Status', kycData.aadhaar_linked)}
-            </div>
-          </div>
+        <Grid item xs={12} sm={6}>
+          <Typography variant="subtitle1">Upload PAN</Typography>
+          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "panFront")} />
+        </Grid>
 
-          <div className={`bg-white border-2 rounded-xl overflow-hidden ${isPanVerified ? 'border-green-200' : 'border-red-200'}`}>
-            <div className={`${isPanVerified ? 'bg-green-50' : 'bg-red-50'} px-6 py-4`}>
-              <VerificationHeader title="PAN Verification" isVerified={isPanVerified} icon={CreditCard} />
-            </div>
-            <div className="p-6">
-              {renderTextField('PAN Number', kycData.pan_number)}
-              {renderFileField('PAN Front', kycData.pan_front)}
-              {renderFileField('PAN Back', kycData.pan_back || '')}
-              {renderTextField('Date of Birth', kycData.pan_date_of_birth)}
-              {renderTextField('Gender', kycData.pan_gender)}
-              {renderTextField('Verification Status', kycData.pan_verification)}
-            </div>
-          </div>
-        </div>
+        {/* Aadhaar Fields */}
+        <Grid item xs={12}>
+          <Typography variant="h6">Aadhaar Details</Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="Aadhaar Number" fullWidth name="aadhaarNumber" value={kycData.aadhaarNumber} onChange={handleInputChange} />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="Name" fullWidth name="aadhaarName" value={kycData.aadhaarName} onChange={handleInputChange} />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="Gender" fullWidth name="aadhaarGender" value={kycData.aadhaarGender} onChange={handleInputChange} />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField label="Address" fullWidth multiline name="aadhaarAddress" value={kycData.aadhaarAddress} onChange={handleInputChange} />
+        </Grid>
 
-        <div className="text-center">
-          <div className={`inline-block p-6 rounded-xl border-2 ${
-            (isAadhaarVerified && isPanVerified)
-              ? 'bg-green-50 border-green-200'
-              : 'bg-yellow-50 border-yellow-200'
-          }`}>
-            <h3 className="text-xl font-bold text-gray-800 mb-3">Overall KYC Status</h3>
-            <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full text-lg font-bold ${
-              (isAadhaarVerified && isPanVerified)
-                ? 'bg-green-100 text-green-800 border border-green-300'
-                : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-            }`}>
-              {(isAadhaarVerified && isPanVerified) ? (
-                <>
-                  <CheckCircleOutline className="w-6 h-6" />
-                  KYC Fully Verified
-                </>
-              ) : (
-                <>
-                  <ErrorOutline className="w-6 h-6" />
-                  Partial Verification
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        {/* PAN Fields */}
+        <Grid item xs={12}>
+          <Typography variant="h6">PAN Details</Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="PAN Number" fullWidth name="panNumber" value={kycData.panNumber} onChange={handleInputChange} />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="Name" fullWidth name="panName" value={kycData.panName} onChange={handleInputChange} />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="Date of Birth" type="date" fullWidth name="panDob" value={kycData.panDob} onChange={handleInputChange} InputLabelProps={{ shrink: true }} />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField label="Gender" fullWidth name="panGender" value={kycData.panGender} onChange={handleInputChange} />
+        </Grid>
+
+        {/* Submit */}
+        <Grid item xs={12}>
+          <Button variant="contained" color="primary" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Processing..." : "Submit KYC"}
+          </Button>
+        </Grid>
+      </Grid>
+    </Paper>
   );
 };
 
-export default Kyc;
+export default KYCForm;

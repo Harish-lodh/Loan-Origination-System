@@ -8,7 +8,7 @@ import Layout from "../layout/Layout";
 import Lap from "../pages/Products/Lap";
 import Educationloan from "../pages/Products/Educationloan";
 import LeadTable from "../pages/Leads";
-import Kyc from '../pages/Kyc'
+import KycForm from '../pages/Kyc'
 import ContactTable from "../pages/Contacts/contacts";
 import Supplychain from "../pages/Products/Supplychain";
 
@@ -30,7 +30,7 @@ const AppRoutes = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="leads/users" element={<LeadTable />} />
                 <Route path="leads/create" element={<LeadForm />} />
-                <Route path="leads/kyc" element={<Kyc />} />
+                <Route path="leads/kyc" element={<KycForm />} />
                 <Route path="applications" element={<Applications />} />
                 <Route path="/contacts" element={<ContactTable />} />
 
