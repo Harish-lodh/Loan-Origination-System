@@ -1,153 +1,331 @@
-import React, { useState } from "react";
-import { extractTextFromImage } from "../utils/OcrUtils"; // ✅ Your OCR logic here
-import { Box, TextField, Typography, Button, Grid, Paper } from "@mui/material";
+import React, { useState } from 'react';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import CreditCardOutlinedIcon from '@mui/icons-material/CreditCardOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { getKycOcrData } from '../api/api';
 
 interface KycData {
-  selfie: File | null;
   aadhaarFront: File | null;
-  panFront: File | null;
+  aadhaarBack: File | null;
+  pan: File | null;
+  name: string;
+  gender: string;
+  dob: string;
   aadhaarNumber: string;
-  aadhaarName: string;
-  aadhaarGender: string;
-  aadhaarAddress: string;
+  address: string;
   panNumber: string;
-  panName: string;
+  panHolderName: string;
+  panFatherName: string;
   panDob: string;
-  panGender: string;
 }
 
-const initialKycData: KycData = {
-  selfie: null,
-  aadhaarFront: null,
-  panFront: null,
-  aadhaarNumber: "",
-  aadhaarName: "",
-  aadhaarGender: "",
-  aadhaarAddress: "",
-  panNumber: "",
-  panName: "",
-  panDob: "",
-  panGender: "",
+const KycForm: React.FC = () => {
+  const [formData, setFormData] = useState<KycData>({
+    aadhaarFront: null,
+    aadhaarBack: null,
+    pan: null,
+    name: '',
+    gender: '',
+    dob: '',
+    aadhaarNumber: '',
+    address: '',
+    panNumber: '',
+    panHolderName: '',
+    panFatherName: '',
+    panDob: '',
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: keyof KycData) => {
+    const file = e.target.files?.[0] || null;
+    setFormData({ ...formData, [key]: file });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+const formatDateToInput = (dateString: string) => {
+  if (!dateString) return '';
+  const [day, month, year] = dateString.split('/');
+  if (day && month && year) {
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+  return dateString; // fallback if already formatted
 };
 
-const KYCForm: React.FC = () => {
-  const [kycData, setKycData] = useState<KycData>(initialKycData);
-  const [loading, setLoading] = useState(false);
+const handleSubmit = async () => {
+  const body = new FormData();
+  if (formData.aadhaarFront) body.append('aadhaarFront', formData.aadhaarFront);
+  if (formData.aadhaarBack) body.append('aadhaarBack', formData.aadhaarBack);
+  if (formData.pan) body.append('pan', formData.pan);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: keyof KycData) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setKycData((prev) => ({ ...prev, [field]: file }));
-
-    if (field === "aadhaarFront" || field === "panFront") {
-      setLoading(true);
-      try {
-        const extractedData = await extractTextFromImage(file, field);
-        if (field === "aadhaarFront") {
-          setKycData((prev) => ({
-            ...prev,
-            aadhaarNumber: extractedData.number || prev.aadhaarNumber,
-            aadhaarName: extractedData.name || prev.aadhaarName,
-            aadhaarGender: extractedData.gender || prev.aadhaarGender,
-            aadhaarAddress: extractedData.address || prev.aadhaarAddress,
-          }));
-        } else if (field === "panFront") {
-          setKycData((prev) => ({
-            ...prev,
-            panNumber: extractedData.number || prev.panNumber,
-            panName: extractedData.name || prev.panName,
-            panDob: extractedData.dob || prev.panDob,
-            panGender: extractedData.gender || prev.panGender,
-          }));
-        }
-      } catch (err) {
-        console.error("OCR Failed", err);
-      }
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setKycData((prev) => ({
+  try {
+    const data = await getKycOcrData(body); // ✅ already parsed
+    setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      name: data.aadhaarData?.name || '',
+      gender: data.aadhaarData?.gender || '',
+      dob: formatDateToInput(data.aadhaarData?.dob || data.panData?.dob || ''),
+      aadhaarNumber: data.aadhaarData?.aadhaarNumber || '',
+      address: data.aadhaarData?.address || '',
+      panNumber: data.panData?.panNumber || '',
+      panHolderName: data.panData?.name || '',
+      panFatherName: data.panData?.fatherName || '',
+      panDob: formatDateToInput(data.panData?.dob || ''),
     }));
-  };
+  } catch (error) {
+    console.error('Error extracting KYC data:', error);
+  }
+};
 
-  const handleSubmit = () => {
-    console.log("KYC Data Submitted", kycData);
-  };
+
+  const FileUploadBox = ({ label, accept, onChange, file, icon: Icon }:any) => (
+    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-all duration-200 bg-gray-50 hover:bg-blue-50">
+      <Icon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+      <label className="cursor-pointer">
+        <span className="text-sm font-medium text-gray-700 hover:text-blue-600">
+          {file ? file.name : `Upload ${label}`}
+        </span>
+        <input
+          type="file"
+          accept={accept}
+          onChange={onChange}
+          className="hidden"
+        />
+      </label>
+      {file && (
+        <div className="mt-2">
+          <CheckCircleOutlineIcon className="inline h-5 w-5 text-green-500" />
+          <span className="text-sm text-green-600 ml-1">Uploaded</span>
+        </div>
+      )}
+    </div>
+  );
+
+  const InputField = ({ label, name, value, onChange, type = "text", required = false, options = null }:any) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      {options ? (
+        <select
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+          required={required}
+        >
+          <option value="">Select {label}</option>
+          {options.map((option:any) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+          required={required}
+        />
+      )}
+    </div>
+  );
+
+  const genderOptions = [
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Other', label: 'Other' }
+  ];
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: "auto", mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        KYC Form
-      </Typography>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">KYC Verification</h1>
+          <p className="text-gray-600">Complete your Know Your Customer verification process</p>
+        </div>
 
-      <Grid container spacing={2}>
-        {/* Upload Section */}
-        <Grid item xs={12} sm={6}>
-          <Typography variant="subtitle1">Upload Selfie</Typography>
-          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "selfie")} />
-        </Grid>
+        {/* Progress Indicator */}
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-blue-500 text-white">
+              <PersonOutlineIcon className="w-5 h-5" />
+              <span className="font-medium">Aadhaar Card</span>
+            </div>
+            <div className="w-8 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-500 text-white">
+              <CreditCardOutlinedIcon className="w-5 h-5" />
+              <span className="font-medium">PAN Card</span>
+            </div>
+          </div>
+        </div>
 
-        <Grid item xs={12} sm={6}>
-          <Typography variant="subtitle1">Upload Aadhaar Front</Typography>
-          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "aadhaarFront")} />
-        </Grid>
+        {/* Aadhaar Card Section */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+          <div className="flex items-center mb-6">
+            <PersonOutlineIcon className="w-8 h-8 text-blue-500 mr-3" />
+            <h2 className="text-2xl font-bold text-gray-900">Aadhaar Card Verification</h2>
+          </div>
 
-        <Grid item xs={12} sm={6}>
-          <Typography variant="subtitle1">Upload PAN</Typography>
-          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "panFront")} />
-        </Grid>
+          {/* File Uploads */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <FileUploadBox
+              label="Aadhaar Front"
+              accept="image/*"
+              onChange={(e:any) => handleFileChange(e, 'aadhaarFront')}
+              file={formData.aadhaarFront}
+              icon={CloudUploadOutlinedIcon}
+            />
+            <FileUploadBox
+              label="Aadhaar Back"
+              accept="image/*"
+              onChange={(e:any) => handleFileChange(e, 'aadhaarBack')}
+              file={formData.aadhaarBack}
+              icon={CloudUploadOutlinedIcon}
+            />
+          </div>
 
-        {/* Aadhaar Fields */}
-        <Grid item xs={12}>
-          <Typography variant="h6">Aadhaar Details</Typography>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="Aadhaar Number" fullWidth name="aadhaarNumber" value={kycData.aadhaarNumber} onChange={handleInputChange} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="Name" fullWidth name="aadhaarName" value={kycData.aadhaarName} onChange={handleInputChange} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="Gender" fullWidth name="aadhaarGender" value={kycData.aadhaarGender} onChange={handleInputChange} />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField label="Address" fullWidth multiline name="aadhaarAddress" value={kycData.aadhaarAddress} onChange={handleInputChange} />
-        </Grid>
+          {/* Extract Button */}
+          <div className="text-center mb-8">
+            <button
+              onClick={handleSubmit}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              disabled={!formData.aadhaarFront || !formData.aadhaarBack}
+            >
+              Extract Aadhaar Details
+            </button>
+          </div>
 
-        {/* PAN Fields */}
-        <Grid item xs={12}>
-          <Typography variant="h6">PAN Details</Typography>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="PAN Number" fullWidth name="panNumber" value={kycData.panNumber} onChange={handleInputChange} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="Name" fullWidth name="panName" value={kycData.panName} onChange={handleInputChange} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="Date of Birth" type="date" fullWidth name="panDob" value={kycData.panDob} onChange={handleInputChange} InputLabelProps={{ shrink: true }} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField label="Gender" fullWidth name="panGender" value={kycData.panGender} onChange={handleInputChange} />
-        </Grid>
+          {/* Aadhaar Details Form */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">Aadhaar Details</h3>
 
-        {/* Submit */}
-        <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? "Processing..." : "Submit KYC"}
-          </Button>
-        </Grid>
-      </Grid>
-    </Paper>
+            <div className="grid md:grid-cols-2 gap-6">
+              <InputField
+                label="Full Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                options={genderOptions}
+                required
+              />
+              <InputField
+                label="Date of Birth"
+                name="dob"
+                type="date"
+                value={formData.dob}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Aadhaar Number"
+                name="aadhaarNumber"
+                value={formData.aadhaarNumber}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <InputField
+              label="Address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
+
+        {/* PAN Card Section */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+          <div className="flex items-center mb-6">
+            <CreditCardOutlinedIcon className="w-8 h-8 text-purple-500 mr-3" />
+            <h2 className="text-2xl font-bold text-gray-900">PAN Card Verification</h2>
+          </div>
+
+          {/* File Upload */}
+          <div className="mb-8">
+            <FileUploadBox
+              label="PAN Card"
+              accept="image/*"
+              onChange={(e:any) => handleFileChange(e, 'pan')}
+              file={formData.pan}
+              icon={InsertDriveFileOutlinedIcon}
+            />
+          </div>
+
+          {/* Extract Button */}
+          <div className="text-center mb-8">
+            <button
+              onClick={handleSubmit}
+              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              disabled={!formData.pan}
+            >
+              Extract PAN Details
+            </button>
+          </div>
+
+          {/* PAN Details Form */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">PAN Card Details</h3>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <InputField
+                label="PAN Number"
+                name="panNumber"
+                value={formData.panNumber}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="PAN Holder Name"
+                name="panHolderName"
+                value={formData.panHolderName}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Father's Name"
+                name="panFatherName"
+                value={formData.panFatherName}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Date of Birth (PAN)"
+                name="panDob"
+                type="date"
+                value={formData.panDob}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="text-center">
+          <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-12 py-4 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg text-lg">
+            Submit KYC Verification
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default KYCForm;
+export default KycForm;
