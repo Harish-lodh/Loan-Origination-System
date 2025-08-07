@@ -1,4 +1,4 @@
-export const extractTextFromImage = async (file: File): Promise<string> => {
+export const extractTextFromImage = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("language", "eng");
@@ -9,7 +9,9 @@ export const extractTextFromImage = async (file: File): Promise<string> => {
     method: "POST",
     body: formData,
   });
-console.log(response)
+
+  console.log(response);
+
   const result = await response.json();
   return result?.ParsedResults?.[0]?.ParsedText || "";
 };

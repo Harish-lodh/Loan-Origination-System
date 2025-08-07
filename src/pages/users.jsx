@@ -8,27 +8,13 @@ import Paper from '@mui/material/Paper';
 import { useNavigate } from 'react-router-dom';
 import { AddCircleOutline } from '@mui/icons-material';
 
-interface LeadData {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  leadSource: string;
-  leadOwner: string;
-}
-
-function createData(
-  name: string,
-  company: string,
-  email: string,
-  phone: string,
-  leadSource: string,
-  leadOwner: string
-): LeadData {
+// No TypeScript interface here
+function createData(name, company, email, phone, leadSource, leadOwner) {
   return { name, company, email, phone, leadSource, leadOwner };
 }
 
-const rows: LeadData[] = [
+// Sample data
+const rows = [
   createData('Amit Sharma', 'TechNova Pvt Ltd', 'amit.sharma@technova.com', '9876543210', 'Website', 'Ravi Mehra'),
   createData('Pooja Patel', 'HealthCorp', 'pooja.patel@healthcorp.com', '9123456789', 'Referral', 'Meena Joshi'),
   createData('Rahul Verma', 'EduTrack', 'rahul.verma@edutrack.in', '9988776655', 'LinkedIn', 'Ayesha Khan'),
@@ -46,29 +32,21 @@ export default function Users() {
   return (
     <div className="w-full">
       {/* Header */}
-<div className="flex flex-col mb-4">
-  <h2 className="text-3xl font-semibold text-blue-800 mb-2">Leads</h2>
-  <button
-    onClick={handleCreate}
-    className="self-end flex items-center gap-2 text-white bg-blue-900 hover:bg-blue-950 font-medium rounded-md text-md px-3 py-2"
-  >
-    <AddCircleOutline className="w-5 h-5" />
-    Create Lead
-  </button>
-</div>
+      <div className="flex flex-col mb-4">
+        <h2 className="text-3xl font-semibold text-blue-800 mb-2">Leads</h2>
+        <button
+          onClick={handleCreate}
+          className="self-end flex items-center gap-2 text-white bg-blue-900 hover:bg-blue-950 font-medium rounded-md text-md px-3 py-2"
+        >
+          <AddCircleOutline className="w-5 h-5" />
+          Create Lead
+        </button>
+      </div>
 
-
-
-      {/* Conditional rendering */}
+      {/* Table or empty state */}
       {rows.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-4xl font-medium text-gray-600 mb-2">No leads created yet!</p>
-          {/* <button
-            onClick={handleCreate}
-            className="text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-300 font-medium rounded-md text-sm px-4 py-2"
-          >
-            + Create Your First Lead
-          </button> */}
         </div>
       ) : (
         <TableContainer component={Paper}>

@@ -1,6 +1,6 @@
 import axiosInstance from './axiosInstance';
 
-export const getKycOcrData = async (formData: FormData) => {
+export const getKycOcrData = async () => {
   try {
     const response = await axiosInstance.post('/ocr/extract', formData, {
       headers: {
