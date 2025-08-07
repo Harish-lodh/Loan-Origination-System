@@ -36,7 +36,7 @@ const rows: LeadData[] = [
   createData('Vikram Nair', 'FinMatrix', 'vikram.nair@finmatrix.com', '9112233445', 'Email Campaign', 'Tina Dsouza')
 ];
 
-export default function LeadTable() {
+export default function Users() {
   const navigate = useNavigate();
 
   const handleCreate = () => {

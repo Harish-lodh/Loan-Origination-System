@@ -7,11 +7,11 @@ import Layout from "../layout/Layout";
 // import ProtectedRoute from "../utils/ProtectedRoute";
 import Lap from "../pages/Products/Lap";
 import Educationloan from "../pages/Products/Educationloan";
-import LeadTable from "../pages/users";
-import KycForm from '../components/leads/LeadForm'
+import Users from "../pages/users";
+
 import ContactTable from "../pages/Contacts/contacts";
 import Supplychain from "../pages/Products/Supplychain";
-import CreateLeads from "../pages/CreateLeads";
+// import CreateLeads from "../pages/CreateLeads";
 
 const AppRoutes = () => {
     return (
@@ -29,7 +29,7 @@ const AppRoutes = () => {
                 }
             >
                 <Route index element={<Dashboard />} />
-                <Route path="leads/users" element={<LeadTable />} />
+                <Route path="leads/users" element={<Users />} />
                 <Route path="leads/create" element={<LeadForm />} />
                 {/* <Route path="leads/kyc" element={<KycForm />} /> */}
                 <Route path="applications" element={<Applications />} />
