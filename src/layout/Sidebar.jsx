@@ -9,7 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 const Sidebar = () => {
   const moduleItems = [
-    { id: "Users", label: "Users", path: "/leads/users" },
+    { id: "Pipelines", label: "PipeLines", path: "/leads/users" },
     { id: "kyc", label: "Kyc", path: "/leads/kyc" },
   ];
 

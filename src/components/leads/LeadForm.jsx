@@ -8,6 +8,11 @@ import XIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/CheckCircleOutline';
 import Select from 'react-select';
 import customSelectStyles from '../../utils/CustomCss'
+// import getKycOcrData, { panVerify } from '../../api/api'
+import { convertToDateInputFormat } from '../../utils/dateUtils';
+import { getKycOcrData, panVerify } from '../../api/api';
+import { toast } from 'react-toastify';
+
 // Memoized InputField to prevent unnecessary re-renders
 const InputField = React.memo(({ label, name, type = "text", value, onChange, required = false, options = null }) => {
   return (
@@ -15,18 +20,18 @@ const InputField = React.memo(({ label, name, type = "text", value, onChange, re
       <label className="text-sm mb-2 font-medium text-gray-700">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
-      {options ? (  <Select
-    name={name}
-    value={options.find(option => option.value === value)}
-    onChange={(selectedOption) =>
-      onChange({ target: { name, value: selectedOption?.value || '' } })
-    }
-    options={options}
-    className="react-select-container"
-    classNamePrefix="react-select"
-    styles={customSelectStyles}
-    isClearable
-  />) : (
+      {options ? (<Select
+        name={name}
+        value={options.find(option => option.value === value)}
+        onChange={(selectedOption) =>
+          onChange({ target: { name, value: selectedOption?.value || '' } })
+        }
+        options={options}
+        className="react-select-container"
+        classNamePrefix="react-select"
+        styles={customSelectStyles}
+        isClearable
+      />) : (
         <input
           type={type}
           name={name}
@@ -48,9 +53,8 @@ const FileUpload = ({ label, file, onChange, accept = "image/*" }) => (
       accept={accept}
       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
     />
-    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${
-      file ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-gray-50 group-hover:border-blue-400 group-hover:bg-blue-50'
-    }`}>
+    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${file ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-gray-50 group-hover:border-blue-400 group-hover:bg-blue-50'
+      }`}>
       {file ? (
         <div className="space-y-2">
           <CheckIcon className="w-8 h-8 text-green-500 mx-auto" />
@@ -68,6 +72,9 @@ const FileUpload = ({ label, file, onChange, accept = "image/*" }) => (
 
 const LeadForm = () => {
   const [activeTab, setActiveTab] = useState('basic');
+  const [aadhaarExtract, setAadhaarExtract] = useState(true);
+  const [panExtract, setPanExtract] = useState(true);
+
   const [kycData, setKycData] = useState({
     aadhaarFront: null,
     aadhaarBack: null,
@@ -163,6 +170,102 @@ const LeadForm = () => {
     { id: 'documents', label: 'Documents', icon: FileTextIcon },
   ];
 
+
+
+async function handleVerify() {
+  const body = {
+    panNumber: kycData.panNumber,
+    fullName: kycData.panHolderName,
+    dob: kycData.panDob,
+  };
+
+  const verifyPan = async () => {
+    const response = await panVerify(body);
+    const profileMatches = response?.result?.profileMatch || [];
+
+    const nameMatch = profileMatches.find(p => p.parameter === "name");
+    const dobMatch = profileMatches.find(p => p.parameter === "dob");
+
+    if (nameMatch?.matchResult && dobMatch?.matchResult) {
+      return "PAN verified successfully!";
+    } else {
+      throw new Error("PAN Name or DOB does not match");
+    }
+  };
+
+  toast.promise(
+    verifyPan(),
+    {
+      pending: 'Verifying PAN details...',
+      success: (msg) => msg,
+      error: (err) => err.message || "PAN verification failed",
+    }
+  );
+}
+
+
+
+  // Aadhaar OCR trigger
+  React.useEffect(() => {
+    const fetchAadhaarOCR = async () => {
+      if (!aadhaarExtract) return;
+
+      if (kycData.aadhaarFront && kycData.aadhaarBack) {
+        const formData = new FormData();
+        formData.append("aadhaarFront", kycData.aadhaarFront);
+        formData.append("aadhaarBack", kycData.aadhaarBack);
+
+        try {
+          const response = await getKycOcrData(formData);
+          if (response?.aadhaarData) {
+            const { name, gender, dob, aadhaarNumber, address } = response.aadhaarData;
+            console.log(response.aadhaarData)
+            setKycData(prev => ({
+              ...prev,
+              name: name || prev.name,
+              gender: gender || prev.gender,
+              dob: convertToDateInputFormat(dob) || prev.dob,
+              aadhaarNumber: aadhaarNumber || prev.aadhaarNumber,
+              address: address || prev.address,
+            }));
+          }
+        } catch (error) {
+          console.error("Aadhaar OCR failed:", error);
+        }
+      }
+    };
+
+    fetchAadhaarOCR();
+  }, [aadhaarExtract, kycData.aadhaarFront, kycData.aadhaarBack]);
+  // PAN OCR trigger
+  React.useEffect(() => {
+    const fetchPanOCR = async () => {
+      if (!panExtract) return;
+
+      if (kycData.pan) {
+        const formData = new FormData();
+        formData.append("pan", kycData.pan);
+
+        try {
+          const response = await getKycOcrData(formData);
+          if (response?.panData) {
+            const { panNumber, dob, name, fatherName } = response.panData;
+            setKycData(prev => ({
+              ...prev,
+              panNumber: panNumber || prev.panNumber,
+              panDob: convertToDateInputFormat(dob) || prev.panDob,
+              panHolderName: name || prev.panHolderName,
+              panFatherName: fatherName || prev.panFatherName,
+            }));
+          }
+        } catch (error) {
+          console.error("PAN OCR failed:", error);
+        }
+      }
+    };
+
+    fetchPanOCR();
+  }, [panExtract, kycData.pan]);
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
@@ -177,11 +280,10 @@ const LeadForm = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-blue-800 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${activeTab === tab.id
+                    ? 'bg-blue-800 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span className="font-medium">{tab.label}</span>
@@ -326,24 +428,21 @@ const LeadForm = () => {
                       onChange={(e) => handleFileChange(e, 'aadhaarBack')}
                     />
                   </div>
-      {/* Aadhaar Verification Toggle */}
-      <label className="inline-flex items-center mb-5 cursor-pointer">
-        <input
-          type="checkbox"
-          className="sr-only peer"
-          checked={kycData.aadhaarVerified || true}
-          onChange={(e) =>
-            setKycData((prev) => ({
-              ...prev,
-              aadhaarVerified: e.target.checked,
-            }))
-          }
-        />
-        <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-300   dark:peer-focus:ring-blue-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-900"></div>
-        <span className="ms-3 text-sm font-medium text-gray-300 dark:text-gray-500">
-         Extract from Document (OCR)
-        </span>
-      </label>
+                  {/* Aadhaar Verification Toggle */}
+                  <label className="inline-flex items-center mb-5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={aadhaarExtract}
+                      onChange={(e) => setAadhaarExtract(e.target.checked)}
+                    />
+
+
+                    <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-300   dark:peer-focus:ring-blue-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-900"></div>
+                    <span className="ms-3 text-sm font-medium text-gray-300 dark:text-gray-500">
+                      Extract from Document (OCR)
+                    </span>
+                  </label>
                   <div className="grid md:grid-cols-2 gap-4">
                     <InputField
                       label="Full Name"
@@ -384,6 +483,14 @@ const LeadForm = () => {
                       onChange={handleKycChange}
                     />
                   </div>
+                          <div className="flex justify-start mt-3">
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-400 text-white rounded-lg font-medium hover:bg-green-700 duration-200 shadow-lg"
+                    >
+                      Aadhaar Verify
+                    </button>
+                  </div>
                 </div>
                 <div className="bg-white rounded-xl border-gray-300 border-2 p-6">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -397,23 +504,20 @@ const LeadForm = () => {
                       onChange={(e) => handleFileChange(e, 'pan')}
                     />
                   </div>
-                        <label className="inline-flex items-center mb-5 cursor-pointer">
-        <input
-          type="checkbox"
-          className="sr-only peer"
-          checked={kycData.aadhaarVerified || false}
-          onChange={(e) =>
-            setKycData((prev) => ({
-              ...prev,
-              aadhaarVerified: e.target.checked,
-            }))
-          }
-        />
-        <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-300   dark:peer-focus:ring-blue-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-900"></div>
-        <span className="ms-3 text-sm font-medium text-gray-300 dark:text-gray-500">
-         Extract from Document (OCR)
-        </span>
-      </label>
+                  <label className="inline-flex items-center mb-5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={panExtract}
+                      onChange={(e) => setPanExtract(e.target.checked)}
+                    />
+
+
+                    <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-300   dark:peer-focus:ring-blue-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-900"></div>
+                    <span className="ms-3 text-sm font-medium text-gray-300 dark:text-gray-500">
+                      Extract from Document (OCR)
+                    </span>
+                  </label>
                   <div className="grid md:grid-cols-2 gap-4">
                     <InputField
                       label="PAN Number"
@@ -440,6 +544,16 @@ const LeadForm = () => {
                       value={kycData.panDob}
                       onChange={handleKycChange}
                     />
+
+                  </div>
+                  <div className="flex justify-start mt-3">
+                    <button
+                      type="submit"
+                      onClick={handleVerify}
+                      className="px-4 py-2 bg-green-400 text-white rounded-lg font-medium hover:bg-green-700 duration-200 shadow-lg"
+                    >
+                      Pan Verify
+                    </button>
                   </div>
                 </div>
               </div>
@@ -451,15 +565,15 @@ const LeadForm = () => {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-gray-700">Document Type</label>
-     <Select
-  value={selectedDocument}
-  onChange={(option) => setSelectedDocument(option)}
-  options={documentOptions}
-  className="react-select-container"
-  classNamePrefix="react-select"
-  styles={customSelectStyles}
-  isClearable
-/>
+                      <Select
+                        value={selectedDocument}
+                        onChange={(option) => setSelectedDocument(option)}
+                        options={documentOptions}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={customSelectStyles}
+                        isClearable
+                      />
 
                     </div>
                     <div className="space-y-1">
