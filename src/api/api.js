@@ -1,5 +1,6 @@
 import axios from 'axios';
 import axiosInstance from './axiosInstance';
+import { Email, Password } from '@mui/icons-material';
 
 // ✅ Function to get OCR data
 export const getKycOcrData = async (formData) => {
@@ -22,3 +23,12 @@ export const panVerify = async (body) => {
     const response = await axiosInstance.post('/kyc/pan-verify', body);
     return response.data;
 };
+
+export const getToken=async (body)=>{
+ const response = await axiosInstance.post("/auth/login", body);
+    return response; 
+}
+export const createUser = async (body)=>{
+  const res= await axiosInstance.post("/users/create",body)
+  return res;
+}

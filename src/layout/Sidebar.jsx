@@ -11,6 +11,7 @@ const Sidebar = () => {
   const moduleItems = [
     { id: "Pipelines", label: "PipeLines", path: "/leads/users" },
     { id: "kyc", label: "Kyc", path: "/leads/kyc" },
+    
   ];
 
   const productItems = [
@@ -77,7 +78,7 @@ const Sidebar = () => {
 
         {/* Contacts Link */}
         <NavLink
-          to="/contacts"
+          to="/create/users"
           className={({ isActive }) =>
             `flex items-center gap-3 w-full p-3 mt-4 rounded-lg transition-all hover:bg-gray-200 ${
               isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
@@ -85,16 +86,16 @@ const Sidebar = () => {
           }
         >
           <WidgetsIcon />
-          <span>Contacts</span>
+          <span>Create user</span>
         </NavLink>
 
         {/* Company Link */}
-        <div className="relative block w-full mt-4">
+        {/* <div className="relative block w-full mt-4">
           <div className="flex items-center gap-3 p-3 font-semibold text-gray-700">
             <WidgetsIcon />
             <span>Company</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Products Section */}
         <div className="relative block w-full mt-4">

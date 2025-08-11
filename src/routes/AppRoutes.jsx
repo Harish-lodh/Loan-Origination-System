@@ -1,34 +1,33 @@
 // src/routes/AppRoutes.tsx
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Router } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import LeadForm from "../components/leads/LeadForm";
 import Applications from "../pages/Applications";
 import Layout from "../layout/Layout";
-// import ProtectedRoute from "../utils/ProtectedRoute";
+import ProtectedRoute from "../utils/ProtectedRoute";
 import Lap from "../pages/Products/Lap";
 import Educationloan from "../pages/Products/Educationloan";
 import Users from "../pages/users";
-
+import Login from "../pages/Login";
 import ContactTable from "../pages/Contacts/contacts";
 import Supplychain from "../pages/Products/Supplychain";
 // import CreateLeads from "../pages/CreateLeads";
-
+import CreateUser from '../pages/createUser'
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* <Route path="/login" element={<Login />} /> */}
+            <Route path="/login" element={<Login />} />
             <Route
                 path="/"
-                // element={
-                //     <ProtectedRoute>
-                //         <Layout />
-                //     </ProtectedRoute>
-                // }
                 element={
-                    <Layout />
+                    <ProtectedRoute>
+                        <Layout />
+                    </ProtectedRoute>
                 }
+
             >
                 <Route index element={<Dashboard />} />
+                <Route path="create/users"element={<CreateUser/>}/>
                 <Route path="leads/users" element={<Users />} />
                 <Route path="leads/create" element={<LeadForm />} />
                 {/* <Route path="leads/kyc" element={<KycForm />} /> */}

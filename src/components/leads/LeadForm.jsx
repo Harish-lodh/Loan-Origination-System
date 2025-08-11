@@ -488,7 +488,7 @@ async function handleVerify() {
                       type="submit"
                       className="px-4 py-2 bg-green-400 text-white rounded-lg font-medium hover:bg-green-700 duration-200 shadow-lg"
                     >
-                      Aadhaar Verify
+                       Verify Aadhaar
                     </button>
                   </div>
                 </div>
@@ -552,7 +552,7 @@ async function handleVerify() {
                       onClick={handleVerify}
                       className="px-4 py-2 bg-green-400 text-white rounded-lg font-medium hover:bg-green-700 duration-200 shadow-lg"
                     >
-                      Pan Verify
+                       Verify Pan
                     </button>
                   </div>
                 </div>
