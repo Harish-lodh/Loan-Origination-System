@@ -1,17 +1,18 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 const Layout = () => {
   return (
-    <div className="flex">
-      {/* Sidebar has fixed width and fixed positioning */}
+    <>
+      <Header />
       <Sidebar />
-
-      {/* Push main content to the right of fixed sidebar */}
-      <div className="ml-[20rem] p-6 w-full bg-gray-50 min-h-screen">
-        <Outlet />
-      </div>
-    </div>
+      <main className="pt-16 ml-80 min-h-screen bg-gray-50">
+        <div className="p-4">
+          <Outlet />
+        </div>
+      </main>
+    </>
   );
 };
 

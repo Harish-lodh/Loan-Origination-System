@@ -1,61 +1,87 @@
-import { NavLink } from "react-router-dom";
-import WidgetsIcon from "@mui/icons-material/Widgets";
+import { NavLink, useNavigate } from "react-router-dom";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import InboxIcon from "@mui/icons-material/Inbox";
-import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import DynamicFormIcon from "@mui/icons-material/DynamicForm";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import CategoryIcon from "@mui/icons-material/Category";
+import logo from "../assets/Fintree-Logo.jpg";
+import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 const Sidebar = () => {
-  const moduleItems = [
-    { id: "Pipelines", label: "PipeLines", path: "/leads/users" },
-    { id: "kyc", label: "Kyc", path: "/leads/kyc" },
-    
-  ];
+  const navigate = useNavigate();
 
+  const moduleItems = [{ id: "Pipelines", label: "Pipelines", path: "/leads/users" }];
   const productItems = [
     { id: "LAP", label: "Loan Against Property", path: "/Product/lap" },
     { id: "Supplychain", label: "Supply Chain", path: "/Product/supply-chain" },
     { id: "EducationLoan", label: "Education Loan", path: "/Product/education-loan" },
   ];
-
   const otherItems = [
-    { id: "inbox", label: "Inbox", path: "/inbox", icon: InboxIcon, badge: 14 },
-    { id: "profile", label: "Profile", path: "/profile", icon: PersonIcon },
     { id: "settings", label: "Settings", path: "/settings", icon: SettingsIcon },
-    { id: "logout", label: "Log Out", path: "/logout", icon: LogoutIcon },
+    { id: "logout", label: "Log Out", path: "/login", icon: LogoutIcon },
   ];
 
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const d = jwtDecode(token);
+      setIsSuperAdmin(d.role?.toLowerCase() === "superadmin");
+    } catch {
+      setIsSuperAdmin(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    sessionStorage.clear();
+    navigate("/login");
+  };
+
   return (
-    <div className="flex fixed w-full max-w-[20rem] flex-col rounded-xl bg-white p-4 text-gray-700 shadow-xl">
-      <div className="flex items-center gap-4 p-2 mb-4">
-        <img src="/logo.png" alt="brand" className="w-8 h-8" />
-        <h5 className="text-lg font-bold text-blue-gray-900">Loan Origination System</h5>
-      </div>
+    <aside
+      className="
+        fixed top-16 left-0 bottom-0
+        w-80 bg-white
+        border-r border-gray-200
+        text-gray-700
+        z-40
+        flex flex-col
+      "
+    >
+      {/* Brand
+      <div className="flex items-center gap-3 px-4 py-4 border-b">
+        <img src={logo} alt="brand" className="w-12 h-8 object-contain" />
+        <h5 className="text-base font-semibold text-gray-900">
+          Loan Origination System
+        </h5>
+      </div> */}
 
-      <nav className="flex flex-col text-base font-normal">
-
-        {/* Dashboard Link */}
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 text-base">
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `flex items-center gap-3 w-full p-3 rounded-lg transition-all hover:bg-gray-200 ${
-              isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
+            `flex items-center gap-3 w-full p-3 rounded-lg transition-all hover:bg-gray-100 ${
+              isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
             }`
           }
         >
-          <WidgetsIcon />
+          <DashboardIcon />
           <span>Dashboard</span>
         </NavLink>
 
-        {/* Leads Section */}
-        <div className="relative block w-full ">
+        <div className="mt-2">
           <div className="flex items-center justify-between w-full p-3 font-semibold text-gray-700">
-            <div className="flex items-center gap-3">
-              <WidgetsIcon />
-              <span>Leads</span>
-            </div>
+            <span className="flex items-center gap-3">
+              <DynamicFormIcon />
+              Leads
+            </span>
             <ArrowDropDownIcon />
           </div>
           <div className="mt-1">
@@ -64,8 +90,8 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center w-full p-3 mb-1 pl-10 rounded-lg transition-all hover:bg-gray-200 ${
-                    isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
+                  `flex items-center w-full p-3 mb-1 pl-10 rounded-lg transition-all hover:bg-gray-100 ${
+                    isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
                   }`
                 }
               >
@@ -76,34 +102,26 @@ const Sidebar = () => {
           </div>
         </div>
 
-        {/* Contacts Link */}
-        <NavLink
-          to="/create/users"
-          className={({ isActive }) =>
-            `flex items-center gap-3 w-full p-3 mt-4 rounded-lg transition-all hover:bg-gray-200 ${
-              isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
-            }`
-          }
-        >
-          <WidgetsIcon />
-          <span>Create user</span>
-        </NavLink>
+        {isSuperAdmin && (
+          <NavLink
+            to="/create/users"
+            className={({ isActive }) =>
+              `flex items-center gap-3 w-full p-3 mt-3 rounded-lg transition-all hover:bg-gray-100 ${
+                isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
+              }`
+            }
+          >
+            <PersonAddIcon />
+            <span>Create user</span>
+          </NavLink>
+        )}
 
-        {/* Company Link */}
-        {/* <div className="relative block w-full mt-4">
-          <div className="flex items-center gap-3 p-3 font-semibold text-gray-700">
-            <WidgetsIcon />
-            <span>Company</span>
-          </div>
-        </div> */}
-
-        {/* Products Section */}
-        <div className="relative block w-full mt-4">
+        <div className="mt-3">
           <div className="flex items-center justify-between w-full p-3 font-semibold text-gray-700">
-            <div className="flex items-center gap-3">
-              <WidgetsIcon />
-              <span>Products</span>
-            </div>
+            <span className="flex items-center gap-3">
+              <CategoryIcon />
+              Products
+            </span>
             <ArrowDropDownIcon />
           </div>
           <div className="mt-1">
@@ -112,8 +130,8 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center w-full p-3 pl-10 rounded-lg transition-all hover:bg-gray-200 ${
-                    isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
+                  `flex items-center w-full p-3 pl-10 rounded-lg transition-all hover:bg-gray-100 ${
+                    isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
                   }`
                 }
               >
@@ -126,28 +144,33 @@ const Sidebar = () => {
 
         <hr className="my-4 border-gray-200" />
 
-        {/* Other Items */}
-        {otherItems.map((item) => (
-          <NavLink
-            key={item.id}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center w-full p-3 rounded-lg transition-all hover:bg-gray-200 ${
-                isActive ? "text-blue-800 font-semibold bg-gray-100" : "text-gray-700"
-              }`
-            }
-          >
-            <item.icon className="mr-4" />
-            {item.label}
-            {item.badge && (
-              <div className="ml-auto bg-blue-100 text-blue-800 px-2 py-0.5 text-xs rounded-full font-bold">
-                {item.badge}
-              </div>
-            )}
-          </NavLink>
-        ))}
+        {otherItems.map((item) =>
+          item.id === "logout" ? (
+            <button
+              key={item.id}
+              onClick={handleLogout}
+              className="flex items-center w-full p-3 rounded-lg transition-all hover:bg-gray-100 text-gray-700"
+            >
+              <item.icon className="mr-4" />
+              {item.label}
+            </button>
+          ) : (
+            <NavLink
+              key={item.id}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center w-full p-3 rounded-lg transition-all hover:bg-gray-100 ${
+                  isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
+                }`
+              }
+            >
+              <item.icon className="mr-4" />
+              {item.label}
+            </NavLink>
+          )
+        )}
       </nav>
-    </div>
+    </aside>
   );
 };
 

@@ -10,7 +10,7 @@ import Select from 'react-select';
 import customSelectStyles from '../../utils/CustomCss'
 // import getKycOcrData, { panVerify } from '../../api/api'
 import { convertToDateInputFormat } from '../../utils/dateUtils';
-import { getKycOcrData, panVerify } from '../../api/api';
+import { getKycOcrData, panVerify, sendDocumenstsDetails } from '../../api/api';
 import { toast } from 'react-toastify';
 
 // Memoized InputField to prevent unnecessary re-renders
@@ -157,11 +157,27 @@ const LeadForm = () => {
     setUploadedDocuments(prev => prev.filter(doc => doc.id !== id));
   }, []);
 
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     console.log('Form Data:', formData);
     console.log('KYC Data:', kycData);
     console.log('Documents:', uploadedDocuments);
+    try{
+      const payload={
+        formData,kycData,uploadedDocuments
+      }
+      const res=await sendDocumenstsDetails(payload);
+      if(res){
+        toast.success("successfully upload leads!")
+      }
+      console.log(res)
+    }
+    catch(error)
+    {
+      console.log(error)
+
+    }
+
   }, [formData, kycData, uploadedDocuments]);
 
   const tabs = [
@@ -182,10 +198,9 @@ async function handleVerify() {
   const verifyPan = async () => {
     const response = await panVerify(body);
     const profileMatches = response?.result?.profileMatch || [];
-
+    console.log(response)
     const nameMatch = profileMatches.find(p => p.parameter === "name");
     const dobMatch = profileMatches.find(p => p.parameter === "dob");
-
     if (nameMatch?.matchResult && dobMatch?.matchResult) {
       return "PAN verified successfully!";
     } else {
@@ -205,7 +220,11 @@ async function handleVerify() {
 
 
 
-  // Aadhaar OCR trigger
+//  Aadhaar OCR trigger
+  
+
+  
+  
   React.useEffect(() => {
     const fetchAadhaarOCR = async () => {
       if (!aadhaarExtract) return;
@@ -436,8 +455,6 @@ async function handleVerify() {
                       checked={aadhaarExtract}
                       onChange={(e) => setAadhaarExtract(e.target.checked)}
                     />
-
-
                     <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-300   dark:peer-focus:ring-blue-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-900"></div>
                     <span className="ms-3 text-sm font-medium text-gray-300 dark:text-gray-500">
                       Extract from Document (OCR)

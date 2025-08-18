@@ -32,3 +32,8 @@ export const createUser = async (body)=>{
   const res= await axiosInstance.post("/users/create",body)
   return res;
 }
+
+export const sendDocumenstsDetails=async(body)=>{
+  const res= await axiosInstance.post("/leads/upload",body)
+  return res;
+}

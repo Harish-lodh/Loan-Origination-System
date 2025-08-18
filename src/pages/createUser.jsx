@@ -1,6 +1,7 @@
 // src/pages/SuperadminCreateUser.jsx
 import { useState } from "react";
 import { createUser } from "../api/api"; // Assumes this returns response.data
+import { toast } from "react-toastify";
 
 const ROLE_OPTIONS = ["SuperAdmin", "Admin", "Manager", "Agent", "User"]; // Title Case as requested
 
@@ -15,10 +16,14 @@ export default function CreateUser() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value.trim() })); // Trim to avoid accidental spaces
-  };
+const onChange = (e) => {
+  const { name, value } = e.target;
+  setForm((prev) => ({
+    ...prev,
+    [name]: name === 'full_name' ? value : value.trim()
+  }));
+};
+
 
   const validateForm = () => {
     if (!form.full_name.trim()) return "Full name is required";
@@ -47,12 +52,16 @@ export default function CreateUser() {
       // Sends body: { full_name, email, password, role }
       console.log(form)
       const data = await createUser(form);
-      setSuccess(`User created: ${data.email || form.email} ${data.id ? `(ID: ${data.id})` : ""}`);
+      toast.success(`User created successfully! \n Email: ${data.email || form.email}`,{
+        autoClose:5000,
+      })
+      // setSuccess(`User created: ${data.email || form.email} ${data.id ? `(ID: ${data.id})` : ""}`);
       setForm({ full_name: "", email: "", password: "", role: "User" });
     } catch (err) {
       const raw = err?.response?.data;
       const messages = Array.isArray(raw?.message) ? raw.message.join("\n") : raw?.message || err.message || "Failed to create user";
-      setError(messages);
+      // setError(messages);
+      toast.error(`${messages || 'Failed to create user'}`)
       console.error("Error creating user:", err);
     } finally {
       setLoading(false);
@@ -88,6 +97,7 @@ export default function CreateUser() {
             Full Name
           </label>
           <input
+          type="text"
             id="full_name"
             name="full_name"
             value={form.full_name}
@@ -157,7 +167,7 @@ export default function CreateUser() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded p-2 hover:bg-blue-700 disabled:opacity-60"
+          className="w-full bg-blue-700 text-white rounded p-2 hover:bg-blue-900 disabled:opacity-60"
           aria-busy={loading}
         >
           {loading ? "Creating..." : "Create User"}
