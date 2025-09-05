@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/leads/FadeLoaderCustom";
 import { getToken } from "../api/api"; 
+import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 
 const Login = () => {
@@ -17,9 +18,17 @@ const Login = () => {
 
     try {
       const body = { email, password };      
-      const res = await getToken(body);        
+      const res = await getToken(body);
+      const decoded=jwtDecode(res.data.access_token);
+      // console.log(userName.username)
       localStorage.setItem("token", res.data.access_token); 
-      navigate("/");
+      localStorage.setItem("username",decoded.username); 
+      localStorage.setItem("role",decoded.role);
+
+      //navigate("/");
+    //  console.log("role-->",res);
+        if (decoded.role === "ADMIN") navigate("/admin");
+    else navigate("/dashboard");
     } catch (err) {
       // ✅ robust error message
       const msg =

@@ -12,11 +12,32 @@ import Login from "../pages/Login";
 import ContactTable from "../pages/Contacts/contacts";
 import Supplychain from "../pages/Products/Supplychain";
 // import CreateLeads from "../pages/CreateLeads";
+
 import CreateUser from '../pages/createUser'
 const AppRoutes = () => {
+
+
+    function AdminPage() {
+        return <h2>Admin Only</h2>;
+    }
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
+
+            <Route
+                path="/admin"
+                element={
+                    <ProtectedRoute role="ADMIN">
+                        <Layout role="ADMIN" />
+                    </ProtectedRoute>
+                }
+            >
+                {/* All paths here are RELATIVE to /admin */}
+                <Route index element={<Dashboard />} />               {/* /admin */}
+                <Route path="dashboard" element={<Dashboard />} />    {/* /admin/dashboard */}
+                <Route path="leads" element={<AdminPage />} />  
+                 <Route path="products" element={<AdminPage />} />    
+            </Route>
             <Route
                 path="/"
                 element={
@@ -26,8 +47,10 @@ const AppRoutes = () => {
                 }
 
             >
-                <Route index element={<Dashboard />} />
-                <Route path="create/users"element={<CreateUser/>}/>
+                <Route index  element={<Dashboard />} />
+                  <Route path="dashboard" element={<Dashboard />} /> 
+
+                <Route path="create/users" element={<CreateUser />} />
                 <Route path="leads/users" element={<Users />} />
                 <Route path="leads/create" element={<LeadForm />} />
                 {/* <Route path="leads/kyc" element={<KycForm />} /> */}

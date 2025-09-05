@@ -167,17 +167,14 @@ const LeadForm = () => {
         formData,kycData,uploadedDocuments
       }
       const res=await sendDocumenstsDetails(payload);
-      if(res){
+      
         toast.success("successfully upload leads!")
-      }
       console.log(res)
     }
     catch(error)
     {
       console.log(error)
-
     }
-
   }, [formData, kycData, uploadedDocuments]);
 
   const tabs = [

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { jwtDecode } from "jwt-decode";
+
 import logo from "../assets/Fintree-Logo.jpg";
 
 const Header = () => {
@@ -16,9 +16,9 @@ const Header = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const d = jwtDecode(token);
-      const name = d.fullName || d.username || d.email || "";
-      setDisplayName(name);
+      const name = localStorage.getItem("username")
+      //const name = d.fullName || d.username || d.email || "";
+      setDisplayName(name || 'user');
     } catch {
       setDisplayName("");
     }
