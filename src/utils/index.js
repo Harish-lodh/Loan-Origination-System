@@ -1,4 +1,4 @@
-export const getInputType = (dbType) => {
+  export const getInputType = (dbType) => {
     switch (dbType.toUpperCase()) {
       case 'CHARACTER VARYING':
         return 'text';
@@ -10,6 +10,8 @@ export const getInputType = (dbType) => {
         return 'number';
       case 'DATE':
         return 'date';
+      case 'UUID':
+        return 'text';
       default:
         return 'text';
     }

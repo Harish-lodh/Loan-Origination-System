@@ -13,6 +13,7 @@ import { getKycOcrData, panVerify, sendDocumenstsDetails, getleadfield } from '.
 import { toast } from 'react-toastify';
 import Loader from './FadeLoaderCustom';
 import { convertToDateInputFormat } from '../../utils/dateUtils';
+import { getInputType } from '../../utils/index'
 
 // Memoized InputField to prevent unnecessary re-renders
 const InputField = React.memo(({ label, name, type = "text", value, onChange, required = false, options = null }) => {
@@ -138,8 +139,15 @@ const LeadForm = () => {
   // Fields to exclude from the form
   const EXCLUDED_FIELDS = new Set(['id', 'customdata', 'kycid', 'leadimagepath']);
   // Group fields into Basic Information and Address
-  const basicFields = ['leadOwner', 'firstName', 'lastName', 'email', 'mobile', 'company'];
-  const addressFields = ['street', 'city', 'state', 'country', 'zipCode'];
+  const basicFields = new Set(['leadowner', 'firstname', 'lastname', 'email', 'mobile', 'company']);
+  const addressFields = new Set(['street', 'city', 'state', 'country', 'zipcode']);
+  // natural API order -> ['leadOwner','firstName', ...]
+  const apiOrder = columns.map(c => c.name.toLowerCase());
+  const rank = new Map(apiOrder.map((n, i) => [n, i]));
+  const sortByApiOrder = (a, b) =>
+    (rank.get(a.name.toLowerCase()) ?? 1e9) - (rank.get(b.name.toLowerCase()) ?? 1e9);
+
+
 
   // Filter and map columns to form fields
   const formFields = columns.filter(
@@ -147,24 +155,24 @@ const LeadForm = () => {
   );
 
   // Determine input type based on column dbType
-  const getInputType = (dbType) => {
-    switch (dbType.toUpperCase()) {
-      case 'CHARACTER VARYING':
-        return 'text';
-      case 'TEXT':
-        return 'textarea';
-      case 'NUMERIC':
-        return 'number';
-      case 'INTEGER':
-        return 'number';
-      case 'DATE':
-        return 'date';
-      case 'UUID':
-        return 'text';
-      default:
-        return 'text';
-    }
-  };
+  // const getInputType = (dbType) => {
+  //   switch (dbType.toUpperCase()) {
+  //     case 'CHARACTER VARYING':
+  //       return 'text';
+  //     case 'TEXT':
+  //       return 'textarea';
+  //     case 'NUMERIC':
+  //       return 'number';
+  //     case 'INTEGER':
+  //       return 'number';
+  //     case 'DATE':
+  //       return 'date';
+  //     case 'UUID':
+  //       return 'text';
+  //     default:
+  //       return 'text';
+  //   }
+  // };
 
   // Memoize handlers
   const handleFormDataChange = useCallback((e) => {
@@ -345,11 +353,10 @@ const LeadForm = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
-                    activeTab === tab.id
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${activeTab === tab.id
                       ? 'bg-blue-800 text-white shadow-sm'
                       : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span className="font-medium">{tab.label}</span>
@@ -403,7 +410,8 @@ const LeadForm = () => {
                     {/* Basic Information Fields */}
                     <div className="grid md:grid-cols-2 gap-4">
                       {formFields
-                        .filter((col) => basicFields.includes(col.name.toLowerCase()))
+                        .filter((col) => basicFields.has(col.name.toLowerCase()))
+                        .sort(sortByApiOrder)
                         .map((col) => (
                           <InputField
                             key={col.name}
@@ -419,10 +427,11 @@ const LeadForm = () => {
                       {formFields
                         .filter(
                           (col) =>
-                            !basicFields.includes(col.name.toLowerCase()) &&
-                            !addressFields.includes(col.name.toLowerCase()) &&
+                            !basicFields.has(col.name.toLowerCase()) &&
+                            !addressFields.has(col.name.toLowerCase()) &&
                             col.name.toLowerCase() !== 'description'
                         )
+                        .sort(sortByApiOrder)
                         .map((col) => (
                           <InputField
                             key={col.name}
@@ -440,7 +449,7 @@ const LeadForm = () => {
                     <h3 className="text-lg font-medium text-gray-800 mt-6">Address</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       {formFields
-                        .filter((col) => addressFields.includes(col.name.toLowerCase()))
+                        .filter((col) => addressFields.has(col.name.toLowerCase()))
                         .map((col) => (
                           <InputField
                             key={col.name}
