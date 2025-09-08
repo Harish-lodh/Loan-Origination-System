@@ -60,3 +60,35 @@ export async function sendDocumenstsDetails({ formData, kycData, uploadedDocumen
   });
   return res.data;
 }
+
+
+
+
+export const fetchLeadFieldDefs = async () => {
+const { data } = await axiosInstance.get('/admin/lead-fields');
+return data;
+};
+
+
+export const createLead = async (payload) => {
+const { data } = await axiosInstance.post('/leads', payload);
+return data;
+};
+
+
+//get leads-field
+
+export const getleadfield = async () => {
+const  data  = await axiosInstance.get('/lead-fields');
+return data;
+};
+
+export const addleadfield = async (payload) => {
+const  data  = await axiosInstance.post('/lead-fields', payload);
+return data;
+};
+
+export const deletefield = async (field) => {
+const  data  = await axiosInstance.delete(`/lead-fields/${field}`);
+return data;
+};
