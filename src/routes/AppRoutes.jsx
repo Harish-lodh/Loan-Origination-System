@@ -28,8 +28,8 @@ const AppRoutes = () => {
             <Route
                 path="/admin"
                 element={
-                    <ProtectedRoute role="ADMIN">
-                        <Layout role="ADMIN" />
+                    <ProtectedRoute role="admin">
+                        <Layout role="admin" />
                     </ProtectedRoute>
                 }
             >

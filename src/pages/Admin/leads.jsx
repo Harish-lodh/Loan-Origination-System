@@ -121,17 +121,17 @@ export default function AdminLeadFields() {
           <h3 className="text-lg font-semibold mb-3">Add New Field (adds DB column)</h3>
           <div className="grid md:grid-cols-4 gap-3">
             <div>
-              <label className="text-sm text-gray-700">Column Name</label>
+              <label className="text-sm text-gray-900">Column Name</label>
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="e.g. first_name"
-                className="w-full px-3 py-2 border-2 rounded-md"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-md"
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-700">Type</label>
+              <label className="text-sm text-gray-900">Type</label>
               <Select
                 value={newType}
                 onChange={(v) => setNewType(v)}
@@ -142,7 +142,7 @@ export default function AdminLeadFields() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-700">Is Required</label>
+              <label className="text-sm text-gray-900">Is Required</label>
               <Select
                 value={isRequired}
                 onChange={(v) => setIsRequired(v)}
@@ -177,7 +177,7 @@ export default function AdminLeadFields() {
                 <thead>
                   <tr className="text-left border-b">
                     <th className="py-2">Name</th>
-                    <th className="py-2">DB Type</th>
+                    <th className="py-2">Field Type</th>
                     <th className="py-2">Nullable</th>
                     <th className="py-2">Action</th>
                   </tr>

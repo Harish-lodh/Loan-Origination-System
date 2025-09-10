@@ -1,18 +1,22 @@
-  export const getInputType = (dbType) => {
-    switch (dbType.toUpperCase()) {
-      case 'CHARACTER VARYING':
-        return 'text';
-      case 'TEXT':
-        return 'textarea';
-      case 'NUMERIC':
-        return 'number';
-      case 'INTEGER':
-        return 'number';
-      case 'DATE':
-        return 'date';
-      case 'UUID':
-        return 'text';
-      default:
-        return 'text';
-    }
-  };
+export const getInputType = (dbType)=> {
+  switch (dbType.toLowerCase()) {
+    case 'text':
+      return 'text';
+    case 'string':
+      return 'text';
+    case 'textarea':
+      return 'textarea';
+    case 'number':
+      return 'number';
+    case 'date':
+      return 'date';
+    case 'boolean':
+      return 'checkbox';
+    case 'objectid':
+      return 'text';
+    case 'uuid':
+      return 'text';
+    default:
+      return 'text';
+  }
+};

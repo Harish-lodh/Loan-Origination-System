@@ -7,7 +7,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CategoryIcon from "@mui/icons-material/Category";
-import logo from "../assets/Fintree-Logo.jpg";
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
@@ -46,43 +45,31 @@ const Sidebar = () => {
   return (
     <aside
       className="
-        fixed top-16 left-0 bottom-0
-        w-80 bg-white
-        border-r border-gray-200
-        text-gray-700
-        z-40
         flex flex-col
+        h-full bg-white
+        text-gray-700
       "
     >
-      {/* Brand
-      <div className="flex items-center gap-3 px-4 py-4 border-b">
-        <img src={logo} alt="brand" className="w-12 h-8 object-contain" />
-        <h5 className="text-base font-semibold text-gray-900">
-          Loan Origination System
-        </h5>
-      </div> */}
-
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 text-base">
+      <nav className="flex-1 overflow-y-auto px-3 py-3 text-sm sm:text-base">
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `flex items-center gap-3 w-full p-3 rounded-lg transition-all hover:bg-gray-100 ${
+            `flex items-center gap-2 sm:gap-3 w-full p-2 sm:p-3 rounded-lg transition-all hover:bg-gray-100 ${
               isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
             }`
           }
         >
-          <DashboardIcon />
+          <DashboardIcon fontSize="small" />
           <span>Dashboard</span>
         </NavLink>
 
         <div className="mt-2">
-          <div className="flex items-center justify-between w-full p-3 font-semibold text-gray-700">
-            <span className="flex items-center gap-3">
-              <DynamicFormIcon />
+          <div className="flex items-center justify-between w-full p-2 sm:p-3 font-semibold text-gray-700">
+            <span className="flex items-center gap-2 sm:gap-3">
+              <DynamicFormIcon fontSize="small" />
               Leads
             </span>
-            <ArrowDropDownIcon />
+            <ArrowDropDownIcon fontSize="small" />
           </div>
           <div className="mt-1">
             {moduleItems.map((item) => (
@@ -90,12 +77,12 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center w-full p-3 mb-1 pl-10 rounded-lg transition-all hover:bg-gray-100 ${
+                  `flex items-center w-full p-2 sm:p-3 pl-8 sm:pl-10 mb-1 rounded-lg transition-all hover:bg-gray-100 ${
                     isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
                   }`
                 }
               >
-                <ChevronRightIcon className="mr-2" />
+                <ChevronRightIcon className="mr-2" fontSize="small" />
                 {item.label}
               </NavLink>
             ))}
@@ -106,23 +93,23 @@ const Sidebar = () => {
           <NavLink
             to="/create/users"
             className={({ isActive }) =>
-              `flex items-center gap-3 w-full p-3 mt-3 rounded-lg transition-all hover:bg-gray-100 ${
+              `flex items-center gap-2 sm:gap-3 w-full p-2 sm:p-3 mt-3 rounded-lg transition-all hover:bg-gray-100 ${
                 isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
               }`
             }
           >
-            <PersonAddIcon />
+            <PersonAddIcon fontSize="small" />
             <span>Create user</span>
           </NavLink>
         )}
 
         <div className="mt-3">
-          <div className="flex items-center justify-between w-full p-3 font-semibold text-gray-700">
-            <span className="flex items-center gap-3">
-              <CategoryIcon />
+          <div className="flex items-center justify-between w-full p-2 sm:p-3 font-semibold text-gray-700">
+            <span className="flex items-center gap-2 sm:gap-3">
+              <CategoryIcon fontSize="small" />
               Products
             </span>
-            <ArrowDropDownIcon />
+            <ArrowDropDownIcon fontSize="small" />
           </div>
           <div className="mt-1">
             {productItems.map((item) => (
@@ -130,12 +117,12 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center w-full p-3 pl-10 rounded-lg transition-all hover:bg-gray-100 ${
+                  `flex items-center w-full p-2 sm:p-3 pl-8 sm:pl-10 rounded-lg transition-all hover:bg-gray-100 ${
                     isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
                   }`
                 }
               >
-                <ChevronRightIcon className="mr-2" />
+                <ChevronRightIcon className="mr-2" fontSize="small" />
                 {item.label}
               </NavLink>
             ))}
@@ -149,9 +136,9 @@ const Sidebar = () => {
             <button
               key={item.id}
               onClick={handleLogout}
-              className="flex items-center w-full p-3 rounded-lg transition-all hover:bg-gray-100 text-gray-700"
+              className="flex items-center w-full p-2 sm:p-3 rounded-lg transition-all hover:bg-gray-100 text-gray-700"
             >
-              <item.icon className="mr-4" />
+              <item.icon className="mr-3 sm:mr-4" fontSize="small" />
               {item.label}
             </button>
           ) : (
@@ -159,12 +146,12 @@ const Sidebar = () => {
               key={item.id}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center w-full p-3 rounded-lg transition-all hover:bg-gray-100 ${
+                `flex items-center w-full p-2 sm:p-3 rounded-lg transition-all hover:bg-gray-100 ${
                   isActive ? "text-blue-800 font-semibold bg-gray-50" : "text-gray-700"
                 }`
               }
             >
-              <item.icon className="mr-4" />
+              <item.icon className="mr-3 sm:mr-4" fontSize="small" />
               {item.label}
             </NavLink>
           )

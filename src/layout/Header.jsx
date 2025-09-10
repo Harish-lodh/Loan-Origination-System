@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
-
+import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../assets/Fintree-Logo.jpg";
 
-const Header = () => {
+const Header = ({ toggleSidebar, isSidebarOpen }) => {
   const [displayName, setDisplayName] = useState("");
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
@@ -16,15 +16,13 @@ const Header = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const name = localStorage.getItem("username")
-      //const name = d.fullName || d.username || d.email || "";
-      setDisplayName(name || 'user');
+      const name = localStorage.getItem("username");
+      setDisplayName(name || "user");
     } catch {
       setDisplayName("");
     }
   }, []);
 
-  // close dropdown on outside click / Esc
   useEffect(() => {
     const onClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
@@ -51,39 +49,49 @@ const Header = () => {
         h-16 bg-white
         border-b border-gray-200
         flex items-center
-        px-4 z-50
+        px-4 sm:px-6 lg:px-8 z-50
       "
     >
-      {/* LEFT: Brand */}
-      <div className="flex items-center gap-3 ml-2">
-        <img src={logo} alt="Fintree" className="h-8 w-auto object-contain" />
-        <h1 className="text-base sm:text-base font-bold text-gray-800">
-          Loan Origination System
-        </h1>
+      {/* LEFT: Hamburger Menu (Mobile) & Brand */}
+      <div className="flex items-center gap-3">
+        <button
+          className="lg:hidden p-2 text-gray-600 hover:text-gray-800"
+          onClick={toggleSidebar}
+          aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          <MenuIcon fontSize="medium" />
+        </button>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <img src={logo} alt="Fintree" className="h-8 w-auto object-contain" />
+          <h1 className="text-sm sm:text-base font-bold text-gray-800 hidden sm:block">
+            Loan Origination System
+          </h1>
+        </div>
       </div>
 
       {/* RIGHT: Profile dropdown */}
       <div ref={menuRef} className="relative ml-auto">
         <button
           type="button"
-          className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-100 focus:outline-none"
+          className="flex items-center gap-1 sm:gap-2 px-2 py-1 rounded-md hover:bg-gray-100 focus:outline-none"
           onClick={() => setOpen((s) => !s)}
           aria-haspopup="menu"
           aria-expanded={open}
         >
-          <AccountCircleIcon />
-          <span className="text-sm font-medium text-gray-800 truncate max-w-[220px]">
-           {displayName || "User"}
+          <AccountCircleIcon fontSize="small" />
+          <span className="text-xs sm:text-sm font-medium text-gray-800 truncate max-w-[120px] sm:max-w-[220px]">
+            {displayName || "User"}
           </span>
           <KeyboardArrowDownIcon
             className={`text-gray-600 transition-transform ${open ? "rotate-180" : ""}`}
+            fontSize="small"
           />
         </button>
 
         {open && (
           <div
             role="menu"
-            className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-md p-1"
+            className="absolute right-0 top-full mt-2 w-48 sm:w-56 rounded-lg border border-gray-200 bg-white shadow-md p-1"
           >
             <button
               onClick={handleLogout}

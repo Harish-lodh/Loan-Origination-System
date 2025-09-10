@@ -101,23 +101,23 @@ const LeadForm = () => {
     panDob: '',
   });
   const [formData, setFormData] = useState({
-    leadImage: null,
-    leadOwner: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    mobile: "",
-    company: "",
-    street: "",
-    city: "",
-    state: "",
-    country: "",
-    zipCode: "",
-    description: "",
+    // leadImage: null,
+    // leadOwner: "",
+    // firstName: "",
+    // lastName: "",
+    // email: "",
+    // mobile: "",
+    // company: "",
+    // street: "",
+    // city: "",
+    // state: "",
+    // country: "",
+    // zipCode: "",
+    // description: "",
   });
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [file, setFile] = useState(null);
-  const [uploadedDocuments, setUploadedDocuments] = useState([]);
+  const [documentsMeta, setdocumentsMeta] = useState([]);
   const [columns, setColumns] = useState([]); // Initialize as empty array
   const [loading, setLoading] = useState(false);
 
@@ -204,19 +204,20 @@ const LeadForm = () => {
       file: file,
       uploadedAt: new Date(),
     };
-    setUploadedDocuments(prev => [...prev, newDocument]);
+    setdocumentsMeta(prev => [...prev, newDocument]);
     setSelectedDocument(null);
     setFile(null);
   }, [selectedDocument, file]);
 
   const handleRemoveDocument = useCallback((id) => {
-    setUploadedDocuments(prev => prev.filter(doc => doc.id !== id));
+    setdocumentsMeta(prev => prev.filter(doc => doc.id !== id));
   }, []);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     try {
-      const payload = { formData, kycData, uploadedDocuments };
+      const payload = { formData, kycData, documentsMeta };
+      console.log("-",payload)
       const res = await sendDocumenstsDetails(payload);
       toast.success("Successfully uploaded lead!");
       console.log(res);
@@ -224,7 +225,7 @@ const LeadForm = () => {
       console.error("Submit error:", error);
       toast.error("Failed to submit lead");
     }
-  }, [formData, kycData, uploadedDocuments]);
+  }, [formData, kycData, documentsMeta]);
 
   const handleVerify = useCallback(async () => {
     const body = {
@@ -446,7 +447,7 @@ const LeadForm = () => {
                     </div>
 
                     {/* Address Fields */}
-                    <h3 className="text-lg font-medium text-gray-800 mt-6">Address</h3>
+                    {/* <h3 className="text-lg font-medium text-gray-800 mt-6">Address</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       {formFields
                         .filter((col) => addressFields.has(col.name.toLowerCase()))
@@ -461,7 +462,7 @@ const LeadForm = () => {
                             required={!col.isNullable}
                           />
                         ))}
-                    </div>
+                    </div> */}
 
                     {/* Description Field (Textarea) */}
                     {formFields.some((col) => col.name.toLowerCase() === 'description') && (
@@ -659,10 +660,10 @@ const LeadForm = () => {
                     Add Document
                   </button>
                 </div>
-                {uploadedDocuments.length > 0 && (
+                {documentsMeta.length > 0 && (
                   <div className="space-y-3">
                     <h3 className="font-medium text-gray-800">Uploaded Documents</h3>
-                    {uploadedDocuments.map((doc) => (
+                    {documentsMeta.map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <FileTextIcon className="w-5 h-5 text-blue-500" />

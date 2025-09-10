@@ -33,33 +33,38 @@ export const createUser = async (body)=>{
   return res;
 }
 
-export async function sendDocumenstsDetails({ formData, kycData, uploadedDocuments }) {
+export async function sendDocumenstsDetails({ formData, kycData, documentsMeta }) {
   const fd = new FormData();
 
-  // 1) append the JSON (no files) as one string field
-  const documentsMeta = uploadedDocuments.map((d) => ({
-    type: d.type?.value || d.type,         // 'bank_statement'
-    filename: d.file?.name || '',          // to help debugging / matching by index
-  }));
-  const payload = { formData, kycData, documentsMeta };
+  // Build payload JSON
+  const payload = {
+    formData,
+    kycData,
+    documentsMeta: documentsMeta.map((d) => ({
+      type: d.type?.value || d.type,   // e.g. "bank_statement"
+      filename: d.file?.name || '',    // helps map files to meta by index
+    })),
+  };
   fd.append('payload', JSON.stringify(payload));
 
-  // 2) single-file fields (optional)
-  if (formData.leadImage) fd.append('leadImage', formData.leadImage);
+  // Single-file fields (optional)
+  if (formData.leadImage)   fd.append('leadImage', formData.leadImage);
   if (kycData.aadhaarFront) fd.append('aadhaarFront', kycData.aadhaarFront);
   if (kycData.aadhaarBack)  fd.append('aadhaarBack',  kycData.aadhaarBack);
   if (kycData.pan)          fd.append('pan',          kycData.pan);
 
-  // 3) variable documents – order matters (match documentsMeta by index)
-  uploadedDocuments.forEach((d) => {
+  // Variable documents – order matters (must align with documentsMeta array)
+  documentsMeta.forEach((d) => {
     if (d.file) fd.append('documents', d.file);
   });
 
+  // Send request
   const res = await axiosInstance.post('/leads', fd, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return res.data;
 }
+
 
 
 

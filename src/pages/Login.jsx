@@ -27,7 +27,7 @@ const Login = () => {
 
       //navigate("/");
     //  console.log("role-->",res);
-        if (decoded.role === "ADMIN") navigate("/admin");
+        if (decoded.role === "admin") navigate("/admin");
     else navigate("/dashboard");
     } catch (err) {
       // ✅ robust error message
